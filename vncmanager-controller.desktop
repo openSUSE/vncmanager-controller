@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=VNC Configuration
-Exec=vncmanager-controller --tray --start-setup
+Exec=env QT_QPA_PLATFORM=xcb vncmanager-controller --tray --start-setup
 Type=Application
 Terminal=false
 X-KDE-autostart-after=panel
