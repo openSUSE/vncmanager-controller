@@ -1,5 +1,6 @@
 const Clutter = imports.gi.Clutter;
 const GLib = imports.gi.GLib;
+const GObject = imports.gi.GObject;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const St = imports.gi.St;
@@ -11,30 +12,18 @@ const CONTROLLER_CMD = ['/usr/bin/vncmanager-controller', '--start-setup', '--st
 let controller;
 let stdoutChannel;
 
-function VNCController() {
-    this._init();
-}
-
-VNCController.prototype = {
-        __proto__: PanelMenu.Button.prototype,
-
-        _init: function() {
-                PanelMenu.Button.prototype._init.call(this, St.Align.START);
-
-                this.label = new St.Label({ text: 'VNC', y_expand: true, y_align: Clutter.ActorAlign.CENTER });
-                this.actor.add_child(this.label);
-                this.actor.connect('button-release-event', this._handleToggle);
-        },
-
-        _handleToggle: function(actor, event) {
-            stdoutChannel.write_chars("TOGGLE\n", 7);
-            stdoutChannel.flush();
-        },
-}
-
-function init() {
-
-}
+const VNCController = GObject.registerClass(
+class VNCController extends PanelMenu.Button {
+	_init() {
+		super._init(St.Align.START);
+                let label = new St.Label({ text: 'VNC', y_expand: true, y_align: Clutter.ActorAlign.CENTER });
+		this.add_actor(label);
+                this.connect('button-release-event', () => {
+            		stdoutChannel.write_chars("TOGGLE\n", 7);
+		        stdoutChannel.flush();
+		});
+        }
+});
 
 function enable() {
       let process = GLib.spawn_async_with_pipes(null, CONTROLLER_CMD, null, GLib.SpawnFlags.DEFAULT, null);
